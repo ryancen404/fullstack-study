@@ -1,0 +1,7 @@
+note over browser:
+enter content into the form and submit it
+end note
+browser->server: HTTP POST https://studies.cs.helsinki.fi/exampleapp/new_note_spa
+server-->browser: {"message":"note created"}
+browser->server: HTTP GET https://studies.cs.helsinki.fi/favicon.ico
+server->browser: HTML-code.The body contains Course stats
