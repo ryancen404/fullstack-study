@@ -7,10 +7,14 @@ const Button = ({onClick, text}) => (
   </>
 )
 
+const Header = (props) => (<h1>{props.text}</h1>)
+
+const Content = (props) => (<div>{props.text}</div>)
 
 const App = (props) => {
   const [selected, setSelected] = useState(0)
   const [points, setPoints] = useState([0, 0, 0, 0, 0, 0])
+  const [max, setMax] = useState(0)
 
   const clickNext = () => {
     const random = parseInt(Math.random() * anecdotes.length, 10)
@@ -20,18 +24,25 @@ const App = (props) => {
   const clickVote = () => {
     const copy = [...points]
     copy[selected] += 1
+    let maxValue = Math.max(...copy)
+    const maxIndex = copy.indexOf(maxValue)
     setPoints(copy)
+    setMax(maxIndex)
   }
 
   return (
     <div>
-      {props.anecdotes[selected]}
-      <div>
-        {"has " + points[selected] + " votes"}
-      </div>
+      <Header text = {"Anecdote of the day"}/>
+      <Content text =  {props.anecdotes[selected]} />
+      <Content text = {"has " + points[selected] + " votes"} />
       <div>
         <Button onClick = {clickVote} text = {"vote"} />
         <Button onClick = {clickNext} text = {"next anecdote"} />
+      </div>
+      <div>
+        <Header text = {"Anecdote with most votes"} />
+        <Content text = {props.anecdotes[max]} />
+        <Content text = {"has " + points[max] + " votes"} />
       </div>
     </div>
   )
