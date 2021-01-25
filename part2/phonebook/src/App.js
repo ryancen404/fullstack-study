@@ -1,11 +1,14 @@
 import React, { useState, useEffect } from 'react'
 import personsService from './services/persons';
 
-const Notification = ({ msg }) => {
-  if (msg === '') {
+const success = 1
+const fail = -1
+
+const Notification = ({ message }) => {
+  if (message === null) {
     return null
   }
-  const success = {
+  const successStyle = {
     color: 'green',
     background: 'lightgrey',
     fontSize: 20,
@@ -14,9 +17,14 @@ const Notification = ({ msg }) => {
     padding: 10,
     marginBottom: 10,
   }
+  const failStyle = {
+    ...success,
+    color: 'red'
+  }
+  
   return (
-    <div style = {success}>
-      {msg}
+    <div style = {message.type === success ? successStyle : failStyle}>
+      {message.msg}
     </div>
   )
 }
@@ -46,7 +54,6 @@ const PersonForm = ({nameText, numberText, onNameChang, onNumberChange, onSubmit
 }
 
 const Persons = ({ persons, clickRef }) => {
-  console.log("Persons render");
   return (
       persons.map(p =>
         <div key = {p.id}>
@@ -66,7 +73,7 @@ const App = () => {
   const [ newName, setNewName ] = useState('')
   const [ newNumber, setNumber ] = useState('')
   const [ search, setSearch ] = useState('')
-  const [showMsg, setShowMsg] = useState('')
+  const [ message, setMessage] = useState(null)
 
   useEffect(() => {
     personsService
@@ -87,6 +94,13 @@ const App = () => {
       setSearch(event.target.value)
   }
 
+  const showMessage = (message, time) => {
+    setMessage(message)
+    setTimeout(()=> {
+      setMessage(null)
+    }, time)
+  }
+
   const addPerson = (event) => {
       event.preventDefault()
       const find = persons.find(p => p.name === newName)
@@ -97,11 +111,20 @@ const App = () => {
           personsService
             .update(find.id, {...find, number: newNumber})
             .then(data => {
+              showMessage({
+                type: success,
+                msg: `Added ${newNumber}`
+              }, 2000)
               setPersons(persons.map(e => e.id !== find.id ? e : data))
+              setNewName('')
+              setNumber('')
             })
-          setNewName('')
-          setNumber('')
-          setShowMsg(`Added ${newNumber}`)
+            .catch(error => {
+              showMessage({
+                type: fail,
+                msg: `Information of ${newName} has already been removed from server`
+              }, 5000)
+            })
         }
       } else {
         const newPerson = {
@@ -112,10 +135,13 @@ const App = () => {
           .create(newPerson)
           .then(returnPerson => {
             setPersons(persons.concat(returnPerson))
+            showMessage({
+              type: success,
+              msg: `Added ${newName}`
+            }, 2000)
           })
         setNewName('')
         setNumber('')
-        setShowMsg(`Added ${newName}`)
       }
   }
 
@@ -152,7 +178,7 @@ const App = () => {
   return (
     <div>
       <h2>Phonebook</h2>
-      <Notification msg = {showMsg}/>
+      <Notification message = {message}/>
       <Filter text = {search} onChange = {handleSearchChange} />
 
       <h3>{"add a new"}</h3>
