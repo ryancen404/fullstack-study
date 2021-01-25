@@ -51,7 +51,6 @@ const App = () => {
     personsService
       .getAll()
       .then(all => {
-        console.log('useEffect get :>> ', all);
         setPersons(all)
       })
   }, [])
@@ -69,9 +68,19 @@ const App = () => {
 
   const addPerson = (event) => {
       event.preventDefault()
-      const find =  persons.findIndex(p => p.name === newName)
-      if (find !== -1) {
-        window.alert(`${newName} is already added to phonebook`)
+      const find = persons.find(p => p.name === newName)
+      if (find !== undefined) {
+        const isOK = window.confirm(
+          `${newName} is already added to phonebook, replace the old number with a new one?`)
+        if (isOK) {
+          personsService
+            .update(find.id, {...find, number: newNumber})
+            .then(data => {
+              setPersons(persons.map(e => e.id !== find.id ? e : data))
+            })
+          setNewName('')
+          setNumber('')
+        }
       } else {
         const newPerson = {
           name: newName,
