@@ -1,6 +1,26 @@
 import React, { useState, useEffect } from 'react'
 import personsService from './services/persons';
 
+const Notification = ({ msg }) => {
+  if (msg === '') {
+    return null
+  }
+  const success = {
+    color: 'green',
+    background: 'lightgrey',
+    fontSize: 20,
+    borderStyle: 'solid',
+    borderRadius: 5,
+    padding: 10,
+    marginBottom: 10,
+  }
+  return (
+    <div style = {success}>
+      {msg}
+    </div>
+  )
+}
+
 const Filter = ({text, onChange}) => {
     return(
         <div>
@@ -46,6 +66,7 @@ const App = () => {
   const [ newName, setNewName ] = useState('')
   const [ newNumber, setNumber ] = useState('')
   const [ search, setSearch ] = useState('')
+  const [showMsg, setShowMsg] = useState('')
 
   useEffect(() => {
     personsService
@@ -80,6 +101,7 @@ const App = () => {
             })
           setNewName('')
           setNumber('')
+          setShowMsg(`Added ${newNumber}`)
         }
       } else {
         const newPerson = {
@@ -93,6 +115,7 @@ const App = () => {
           })
         setNewName('')
         setNumber('')
+        setShowMsg(`Added ${newName}`)
       }
   }
 
@@ -129,7 +152,7 @@ const App = () => {
   return (
     <div>
       <h2>Phonebook</h2>
-
+      <Notification msg = {showMsg}/>
       <Filter text = {search} onChange = {handleSearchChange} />
 
       <h3>{"add a new"}</h3>
