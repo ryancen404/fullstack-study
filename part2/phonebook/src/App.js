@@ -1,4 +1,3 @@
-import axios from 'axios'
 import React, { useState, useEffect } from 'react'
 import personsService from './services/persons';
 
@@ -26,21 +25,34 @@ const PersonForm = ({nameText, numberText, onNameChang, onNumberChange, onSubmit
     )
 }
 
-const Persons = ({ persons }) => {
-    return (persons.map(p =><div key = {p.name}> {p.name} {p.number} </div>))
+const Persons = ({ persons, clickRef }) => {
+  console.log("Persons render");
+  return (
+      persons.map(p =>
+        <div key = {p.id}>
+            {p.name} {p.number} 
+            <button key = {p.id} 
+                    onClick = {() => clickRef(p)}>
+              delete
+            </button>
+        </div>
+      )
+  )
 }
 
 const App = () => {
+  console.log("App render");
   const [persons, setPersons] = useState([])
   const [ newName, setNewName ] = useState('')
   const [ newNumber, setNumber ] = useState('')
   const [ search, setSearch ] = useState('')
 
   useEffect(() => {
-    axios
-      .get("http://localhost:3001/persons")
-      .then(response => {
-        setPersons(response.data)
+    personsService
+      .getAll()
+      .then(all => {
+        console.log('useEffect get :>> ', all);
+        setPersons(all)
       })
   }, [])
 
@@ -95,6 +107,16 @@ const App = () => {
       return match
   }
 
+  const handleDeleteClick = (p) => {
+    if (window.confirm(`Delete ${p.name} ?`)) {
+      personsService
+        .deleteById(p.id)
+        .then(res => {
+          setPersons(persons.filter(e => e.id !== p.id))
+        })
+    }
+}
+
   return (
     <div>
       <h2>Phonebook</h2>
@@ -112,7 +134,9 @@ const App = () => {
         />
       <h3>Numbers</h3>
       
-      <Persons persons = {filterPersons()} />
+      <Persons 
+        persons = {filterPersons()}
+        clickRef = {handleDeleteClick} />
     </div>
   )
 }
