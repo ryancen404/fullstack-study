@@ -1,5 +1,6 @@
 import axios from 'axios'
 import React, { useState, useEffect } from 'react'
+import personsService from './services/persons';
 
 const Filter = ({text, onChange}) => {
     return(
@@ -60,10 +61,15 @@ const App = () => {
       if (find !== -1) {
         window.alert(`${newName} is already added to phonebook`)
       } else {
-        setPersons(persons.concat({
-            name: newName,
-            number: newNumber
-        }))
+        const newPerson = {
+          name: newName,
+          number: newNumber
+        }
+        personsService
+          .create(newPerson)
+          .then(returnPerson => {
+            setPersons(persons.concat(returnPerson))
+          })
         setNewName('')
         setNumber('')
       }
