@@ -2,31 +2,62 @@ import axios from 'axios';
 import React, {useState} from 'react';
 
 
-const Search = ({text, onChange}) => {
+const Search = ({action}) => {
+    console.log("!!Search render!!");
+    const [search, setSearch] = useState('')
+
+    const handleSearchChange = (event) => {
+        const input = event.target.value
+        setSearch(input)
+        action(input)
+    }
+
     return (
         <div>
             {"find countries "}
-            <input value = {text} onChange = {onChange} />
+            <input value = {search} onChange = {handleSearchChange} />
         </div>
     )
 }
 
-const MoreThanWarn = () =>
-         <div>{"To many matches, specify another filter"}</div>
+const MoreThanWarn = () => {
+    console.log("render MoreThanWarn");
+    return <div>{"To many matches, specify another filter"}</div>;
+}
 
-const LessThanTen = ({names}) =>
+const LessThanTen = ({countries}) => {
+    console.log("render LessThanTen")
+    
+    const [country, setCountry] = useState(null)
+
+    const handleClick = (country) => {
+        setCountry(country)
+    }
+
+    return (
         <>
-            {names.map(e =>
-                <div key = {e}>{e}</div>
-            )}
+            {countries.map(e => 
+                        <div key={e.name}>
+                             {e.name} 
+                             <button key ={e.name} 
+                                    onClick = {() => handleClick(e)}>
+                                show
+                             </button>
+                        </div>)}
+            <div>
+                {country === null ? <div/> : <Country country = {country} />}
+            </div>
         </>
+    )
+}
 
 const Country = ({country}) => {
+    console.log("render Country");
     return(
         <div>
             <h1>{country.name}</h1>
-            <div>{country.capital}</div>
-            <div>{country.population}</div>
+            <div>{`capital ${country.capital}`}</div>
+            <div>{`population ${country.population}`}</div>
             <h2>languages</h2>
             <ul>
                 {country.languages.map( l =>
@@ -48,33 +79,30 @@ const Content = ({ countries }) => {
     } else if (length === 1) {
         return <Country country = {countries[0]} />
     } else if (length > 0 && length < 10) {
-        return <LessThanTen names = {countries.map(e => e.name)} />
+        return <LessThanTen countries = {countries} />
     } else {
         return <div></div>
     }
 }
 
 const App = () => {
-    console.log("!!render!!");
-    const [search, setSearch] = useState('')
+    console.log("!!render App!!");
     const [countries, setCountries] = useState([])
 
-    const handleSearchChange = (event) => {
-        const input = event.target.value
-        console.log(input)
+    const requestAPI = (params) => {
+        console.log("toSeachChange", params)
         axios
-            .get(`https://restcountries.eu/rest/v2/name/${input}`)
+            .get(`https://restcountries.eu/rest/v2/name/${params}`)
             .then(response => {
                 console.log("promise fulfilled!");
                 console.log("datalength", response.data.length)
                 setCountries(response.data)
             })
-        setSearch(input)
     }
 
     return(
         <div>
-            <Search text = {search} onChange = {handleSearchChange} />
+            <Search action = {requestAPI} />
             <Content countries = {countries} />
         </div>
     )
