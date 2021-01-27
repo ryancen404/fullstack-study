@@ -69,7 +69,7 @@ const Persons = ({ persons, clickRef }) => {
 
 const App = () => {
   console.log("App render");
-  const [persons, setPersons] = useState([])
+  const [ persons, setPersons ] = useState([])
   const [ newName, setNewName ] = useState('')
   const [ newNumber, setNumber ] = useState('')
   const [ search, setSearch ] = useState('')
